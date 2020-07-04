@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="new-test-suite.xml" />
+	<munit:before-test name="new-test-suiteBefore_Test" doc:id="e1cbb9ad-93a7-4c08-96d7-1654e882d3f4" >
+		<logger level="INFO" doc:name="Logger" doc:id="1fb070b5-9ad4-40a3-807a-95d8ad4b0bf9" message="BEFORE TEST"/>
+	</munit:before-test>
+	<munit:test name="new-test-suite-munit-exampleFlowTest" doc:id="b63f7ff7-d0d5-46d4-89b8-e116f912865d" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="0f692ade-267c-473d-93c8-0e0ed3c0c278" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Request" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json --- { city: 'London' } ]" />
+				</munit-tools:then-return>
+			
+			
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="905941e5-a1f3-4214-99a0-5ef0da2d887e" >
+				<munit:payload value='#[output application/json
+---
+{
+	"orderid": "12345",
+	"customer": "mycustomer"
+}]' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to munit-exampleFlow" doc:id="dd1a1a3e-e653-4f20-8cba-62fef0f2c851" name="munit-exampleFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="d8ad756d-7a37-4cc9-9f64-8cb33a7e1cf2" actual="#[vars.orderid]" expected="12345" message="OrderId should be 12345"/>
+			<munit-tools:assert doc:name="Assert expression" doc:id="3de9a61f-76cd-4f80-b60c-e27e0d2acda7" />
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:crypto="http://www.mulesoft.org/schema/mule/crypto" xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/crypto http://www.mulesoft.org/schema/mule/crypto/current/mule-crypto.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="c83d8dcc-a6c5-429e-9c45-4f77ff586109" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="e0f693e1-eba0-448d-ae6d-3e5b36d79b6b" >
+		<http:request-connection host="worldtimeapi.org" port="80" />
+	</http:request-config>
+	<flow name="munit-exampleFlow" doc:id="a6c630c0-9848-4390-b7b6-9946947782f8" >
+		<http:listener doc:name="POST /order" doc:id="155adb88-1ba8-4bee-9622-8c02142af4f3" config-ref="HTTP_Listener_config" path="/order" allowedMethods="POST"/>
+		<ee:transform doc:name="Transform Message" doc:id="6e11dc2d-a23c-4653-adc5-266bc20800cb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="orderid" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.orderid]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f2f1bd85-206c-431a-b95a-e6606d82db75" message="#[vars]"/>
+		<choice doc:name="Choice" doc:id="9c9966f5-5d03-480f-9587-c2eefac0ccaf" >
+			<when expression="#[vars.orderid == '12345']">
+				<http:request method="GET" doc:name="Request" doc:id="198e816c-9e66-4e25-8301-125474bab3c9" config-ref="HTTP_Request_configuration" path="/api/timezone/Europe/London.txt" />
+				<logger level="INFO" doc:name="Logger" doc:id="a368b11f-1071-4100-8585-eee3ba63f1dc" />
+			</when>
+			<otherwise >
+				<set-variable value="54321" doc:name="Set Variable" doc:id="71cee201-e8f8-45a8-9cbf-64125f0031ac" variableName="another"/>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>
